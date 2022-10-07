@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Strem.Core.Extensions;
 using Strem.Core.Plugins;
 using Strem.Core.Variables;
+using Strem.Discord.Plugins;
 using Strem.Flows.Default.Plugins;
 using Strem.Flows.Plugins;
 using Strem.Infrastructure.Plugin;
@@ -51,6 +52,7 @@ public class PluginHandler
         _ = typeof(TwitchModule).Assembly;
         _ = typeof(OBSModule).Assembly;
         _ = typeof(TwitterModule).Assembly;
+        _ = typeof(DiscordModule).Assembly;
     }
 
     public IEnumerable<string> PreLoadDynamicPlugins()

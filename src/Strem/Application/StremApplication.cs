@@ -6,6 +6,7 @@ using Strem.Core.Events;
 using Strem.Core.Events.Bus;
 using Strem.Core.Extensions;
 using Strem.Core.Variables;
+using Strem.Discord.Plugins;
 using Strem.Infrastructure.Extensions;
 using Strem.Infrastructure.Services.Api;
 using Strem.Twitch.Plugin;
@@ -43,6 +44,7 @@ public class StremApplication
     {
         AppConfig.Add(TwitchPluginSettings.TwitchClientIdKey, ConfigData.TwitchClientId);
         AppConfig.Add(TwitterPluginSettings.TwitterClientIdKey, ConfigData.TwitterClientId);
+        AppConfig.Add(DiscordPluginSettings.DiscordClientIdKey, ConfigData.DiscordClientId);
     }
 
     public void PreLoadPlugins()

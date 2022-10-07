@@ -1,0 +1,77 @@
+﻿@using Strem.Core.Types
+@using Strem.Discord.Models
+
+<div class="box">
+    <div class="columns">
+        <div class="column">
+            <div class="field">
+                <label class="label">Message Permissions</label>
+                <div class="control">
+                    <EnumSelectInput Value="@MessageAccess" ValueChanged="(ScopeAccess v) => { MessageAccess = v; RequestScopeChange(); }"/>
+                </div>
+                 <HelperInfo>Chat permissions cover being able to read/manage chat messages and whispers</HelperInfo>
+            </div>
+        </div>
+        <div class="column">
+            <div class="field">
+                <label class="label">Voice Permissions</label>
+                <div class="control">
+                    <EnumSelectInput Value="@VoiceAccess" ValueChanged="(ScopeAccess v) => { VoiceAccess = v; RequestScopeChange(); }"/>
+                </div>
+                <HelperInfo>Voice permissions allow you to access metadata and controls related to voice</HelperInfo>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public ScopeAccess MessageAccess { get; set; }
+    public ScopeAccess VoiceAccess { get; set; }
+    
+    [Parameter]
+    public string[] ExistingScopes { get; set; } = Array.Empty<string>();
+    
+    [Parameter]
+    public EventCallback<string[]> OnScopesChanged { get; set; }
+
+    public bool HasScopesFor(string[] requiredScopes)
+    {
+        return requiredScopes.All(x => ExistingScopes.Contains(x));
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (HasScopesFor(ScopeCollections.ManageVoiceScopes)){ VoiceAccess = ScopeAccess.Full; }
+        else if(HasScopesFor(ScopeCollections.ReadVoiceScopes)) { VoiceAccess = ScopeAccess.ReadOnly; }
+        else { VoiceAccess = ScopeAccess.None; }
+        
+        if (HasScopesFor(ScopeCollections.ReadChatScopes)){ MessageAccess = ScopeAccess.Full; }
+        else { MessageAccess = ScopeAccess.None; }
+    }
+
+    public void RequestScopeChange()
+    {
+        var newScopes = new List<string>();
+        switch (MessageAccess)
+        {
+            case ScopeAccess.Full:
+            case ScopeAccess.ReadOnly:
+                newScopes.AddRange(ScopeCollections.ReadChatScopes);
+                break;
+        }
+        
+        switch (VoiceAccess)
+        {
+            case ScopeAccess.Full:
+                newScopes.AddRange(ScopeCollections.ManageVoiceScopes);
+                newScopes.AddRange(ScopeCollections.ReadVoiceScopes);
+                break;
+            case ScopeAccess.ReadOnly:
+                newScopes.AddRange(ScopeCollections.ReadVoiceScopes);
+                break;
+        }
+
+        OnScopesChanged.InvokeAsync(newScopes.ToArray());
+    }
+}
