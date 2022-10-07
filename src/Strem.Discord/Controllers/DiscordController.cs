@@ -47,6 +47,7 @@ public class DiscordController : Controller
     AppState.AppVariables.Set(DiscordVars.OAuthToken, payload.AccessToken);
     var expiry = DateTime.Now.AddSeconds(int.Parse(payload.ExpiresIn));
     AppState.AppVariables.Set(DiscordVars.TokenExpiry, expiry.ToString("u"));
+    AppState.AppVariables.Set(DiscordVars.OAuthScopes, payload.Scope.Replace(" ", ","));
     
     this.PublishAsyncEvent(new DiscordOAuthSuccessEvent());
     return Ok("Punch It Chewie!");

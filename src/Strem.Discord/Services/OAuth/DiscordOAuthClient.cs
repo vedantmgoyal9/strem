@@ -17,9 +17,8 @@ namespace Strem.Discord.Services.OAuth;
 public class DiscordOAuthClient : IDiscordOAuthClient
 {
     public static readonly string OAuthCallbackUrl = $"http://localhost:{InternalWebHostConfiguration.ApiHostPort}/api/discord/oauth";
-    public static readonly string TwitchApiUrl = "https://discord.com/api/oauth2";
+    public static readonly string DiscordApiUrl = "https://discord.com/api/oauth2";
     public static readonly string AuthorizeEndpoint = "authorize";
-    public static readonly string ValidateEndpoint = "token";
     public static readonly string RevokeEndpoint = "token/revoke";
 
     public IWebBrowser WebBrowser { get; }
@@ -50,7 +49,7 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         var clientId = AppConfig.GetDiscordClientId();
         var scopes = Uri.EscapeDataString(string.Join(" ", requiredScopes));
         var queryString = $"client_id={clientId}&redirect_uri={OAuthCallbackUrl}&response_type=token&scope={scopes}&state={state}";
-        var url = $"{TwitchApiUrl}/{AuthorizeEndpoint}?{queryString}";
+        var url = $"{DiscordApiUrl}/{AuthorizeEndpoint}?{queryString}";
         WebBrowser.LoadUrl(url);
     }
 
@@ -61,42 +60,11 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         return string.Empty;
     }
 
-    public void UpdateTokenState(DiscordOAuthValidationPayload payload)
-    {
-        var dateTime = DateTime.Now.AddSeconds(payload.ExpiresIn);
-        AppState.AppVariables.Set(DiscordVars.TokenExpiry, dateTime.ToString("u"));
-        var scopes = string.Join(",", payload.Scopes);
-        AppState.AppVariables.Set(DiscordVars.OAuthScopes, scopes);
-    }
-
     public void ClearTokenState()
     {
         AppState.AppVariables.Delete(DiscordVars.TokenExpiry);
         AppState.AppVariables.Delete(DiscordVars.OAuthScopes);
         AppState.AppVariables.Delete(DiscordVars.OAuthToken);
-    }
-
-    public async Task<bool> ValidateToken()
-    {
-        Logger.Information("Validating Discord Token");
-        var accessToken = this.AttemptGetAccessToken();
-        if (string.IsNullOrEmpty(accessToken)) { return false; }
-        
-        var restClient = new RestClient(TwitchApiUrl);
-        var restRequest = new RestRequest(ValidateEndpoint);
-        restRequest.AddHeader("Authorization", "OAuth " + accessToken);
-        
-        var response = await restClient.ExecuteAsync(restRequest);
-        if (!response.IsSuccessful)
-        {
-            Logger.Error($"Validation Error: {(response.Content ?? "unknown error validating")}");
-            ClearTokenState();
-            return false;
-        }
-        
-        var payload = JsonConvert.DeserializeObject<DiscordOAuthValidationPayload>(response.Content);
-        UpdateTokenState(payload);
-        return true;
     }
 
     public async Task<bool> RevokeToken()
@@ -105,7 +73,7 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         var accessToken = AttemptGetAccessToken();
         if (string.IsNullOrEmpty(accessToken)) { return false; }
         
-        var restClient = new RestClient(TwitchApiUrl);
+        var restClient = new RestClient(DiscordApiUrl);
         var restRequest = new RestRequest(RevokeEndpoint, Method.Post);
         restRequest.AddHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -117,6 +85,7 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         if (!response.IsSuccessful)
         {
             Logger.Error($"Revoke Error: {(response.Content ?? "unknown error revoking")}");
+            ClearTokenState();
             return false;
         }
         

@@ -1,16 +1,20 @@
 ﻿@using System.Reactive.Disposables
-@using Microsoft.Extensions.Logging
+@using Persistity.Extensions
 @using Strem.Core.State
 @using Strem.Discord.Events.OAuth
 @using Strem.Core.Events.Bus
 @using Strem.Core.Extensions
 @using Strem.Discord.Extensions
+@using Strem.Discord.Services.Client
 @using Strem.Discord.Services.OAuth
+@using Strem.Discord.Types
 
-@inject ILogger<DiscordIntegrationComponent> Logger
+@implements IDisposable
+
 @inject IEventBus EventBus
 @inject IAppState AppState
 @inject IDiscordOAuthClient OAuthClient
+@inject IDiscordServiceClient ServiceClient
 
 <div class="columns">
     
@@ -38,6 +42,8 @@
     </div>
 </div>
 <DiscordScopes ExistingScopes="CurrentScopes" OnScopesChanged="RequestNewScopeAccess" />
+
+<button class="button is-danger" @onclick="SendMessage">SEND MESSAGE</button>
 
 @code {
     public bool IsDiscordAccountLinked { get; set; }
@@ -77,24 +83,17 @@
 
     public void ConnectToDiscord()
     {
-        OAuthClient.StartAuthorisationProcess(NewScopes);
+        var totalScopes = new List<string>(NewScopes);
+        if(!totalScopes.Contains(ApiScopes.Identify)){ totalScopes.Add(ApiScopes.Identify); }
+        OAuthClient.StartAuthorisationProcess(totalScopes.ToArray());
     }
     
-    public void DisconnectFromDiscord()
+    public async Task DisconnectFromDiscord()
     {
-        OAuthClient.RevokeToken();
-    }
-    
-    private void ConnectDiscordClient()
-    {
-        
+        await OAuthClient.RevokeToken();
+        InvokeAsync(StateHasChanged);
     }
 
-    private void DisconnectDiscordClient()
-    {
-        Logger.Information("Disconnected From Discord"); 
-    }
-    
     public void RequestNewScopeAccess(string[] newScopes)
     {
         NewScopes = newScopes;
@@ -105,4 +104,11 @@
     {
         _subs?.Dispose();  
     }
+
+    private async Task SendMessage()
+    {
+        if(!ServiceClient.IsConnected) { return; }
+        await ServiceClient.SendMessage("This is a test", "grofit-general");
+    }
+
 }

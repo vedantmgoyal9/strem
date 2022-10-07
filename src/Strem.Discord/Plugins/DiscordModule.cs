@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Discord;
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Strem.Core.Plugins;
 using Strem.Core.Services.Registries.Integrations;
 using Strem.Discord.Services.Client;
@@ -16,7 +18,8 @@ public class DiscordModule : IRequiresApiHostingModule
         
         services.AddSingleton<IPluginStartup, DiscordPluginStartup>();
         services.AddSingleton<IDiscordOAuthClient, DiscordOAuthClient>();
-        services.AddSingleton<IDiscordClient, DiscordClient>();
+        services.AddSingleton<IDiscordServiceClient, DiscordServiceClient>();
+        services.AddSingleton<IDiscordClient, DiscordSocketClient>();
         
         var assembly = GetType().Assembly;
         services.RegisterAllTasksAndComponentsIn(assembly);

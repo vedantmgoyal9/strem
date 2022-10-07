@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Discord.Net" Version="3.8.1" />
         <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.7" />
         <PackageReference Include="RestSharp" Version="108.0.1" />
@@ -35,6 +36,10 @@
     <ItemGroup>
       <AdditionalFiles Include="Views\Discord\OAuthClient.cshtml" />
       <AdditionalFiles Include="Views\Discord\OAuthFailed.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Flows\Tasks\Chat" />
     </ItemGroup>
 
 </Project>

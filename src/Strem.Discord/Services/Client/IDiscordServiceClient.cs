@@ -1,12 +1,13 @@
 ﻿namespace Strem.Discord.Services.Client;
 
-public interface IDiscordClient : IDisposable
+public interface IDiscordServiceClient : IDisposable
 {
     bool IsConnected { get; }
 
-    void Connect();
+    Task Connect();
     void Disconnect();
     
     bool IsMuted();
     void SetMuteStatus(bool shouldMute);
+    Task SendMessage(string message, string channelName);
 }

@@ -46,6 +46,7 @@
         else if(HasScopesFor(ScopeCollections.ReadVoiceScopes)) { VoiceAccess = ScopeAccess.ReadOnly; }
         else { VoiceAccess = ScopeAccess.None; }
         
+        if (HasScopesFor(ScopeCollections.ManageChatScopes)){ MessageAccess = ScopeAccess.Full; }
         if (HasScopesFor(ScopeCollections.ReadChatScopes)){ MessageAccess = ScopeAccess.Full; }
         else { MessageAccess = ScopeAccess.None; }
     }
