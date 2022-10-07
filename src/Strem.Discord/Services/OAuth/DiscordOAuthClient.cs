@@ -47,7 +47,7 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         var state = Randomizer.RandomString(10);
         AppState.TransientVariables.Set(CommonVariables.OAuthState, DiscordVars.Context, state);
 
-        var clientId = AppConfig.GetTwitchClientId();
+        var clientId = AppConfig.GetDiscordClientId();
         var scopes = Uri.EscapeDataString(string.Join(" ", requiredScopes));
         var queryString = $"client_id={clientId}&redirect_uri={OAuthCallbackUrl}&response_type=token&scope={scopes}&state={state}";
         var url = $"{TwitchApiUrl}/{AuthorizeEndpoint}?{queryString}";
@@ -109,10 +109,9 @@ public class DiscordOAuthClient : IDiscordOAuthClient
         var restRequest = new RestRequest(RevokeEndpoint, Method.Post);
         restRequest.AddHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        var clientId = AppConfig.GetTwitchClientId();
-        var request = restRequest;
+        var clientId = AppConfig.GetDiscordClientId();
         var content = $"client_id={clientId}&token={accessToken}";
-        request.AddStringBody(content, DataFormat.None);
+        restRequest.AddStringBody(content, DataFormat.None);
         
         var response = await restClient.ExecuteAsync(restRequest);
         if (!response.IsSuccessful)

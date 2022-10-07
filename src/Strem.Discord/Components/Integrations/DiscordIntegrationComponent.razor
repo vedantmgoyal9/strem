@@ -37,6 +37,7 @@
         </div>
     </div>
 </div>
+<DiscordScopes ExistingScopes="CurrentScopes" OnScopesChanged="RequestNewScopeAccess" />
 
 @code {
     public bool IsDiscordAccountLinked { get; set; }
@@ -76,8 +77,7 @@
 
     public void ConnectToDiscord()
     {
-        // TODO: Move from hardcoded ones to dynamic scopes later
-        OAuthClient.StartAuthorisationProcess(new []{ "rpc", "rpc.voice.read", "rpc.voice.write" });
+        OAuthClient.StartAuthorisationProcess(NewScopes);
     }
     
     public void DisconnectFromDiscord()
