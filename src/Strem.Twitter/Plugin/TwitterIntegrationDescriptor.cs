@@ -13,7 +13,7 @@ public class TwitterIntegrationDescriptor : IIntegrationDescriptor
 
     public VariableDescriptor[] VariableOutputs { get; } = new[]
     {
-        TwitterVars.Username.ToDescriptor()
+        TwitterVars.Username.ToDescriptor(), TwitterVars.UserId.ToDescriptor()
     };
 
     public Type ComponentType { get; } = typeof(TwitterIntegrationComponent);

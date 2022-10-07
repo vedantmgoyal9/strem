@@ -36,9 +36,7 @@
             </div>
         </div>
     </div>
-    
 </div>
-
 
 @code {
     public bool IsDiscordAccountLinked { get; set; }
@@ -78,7 +76,8 @@
 
     public void ConnectToDiscord()
     {
-        OAuthClient.StartAuthorisationProcess(new []{ "rpc", "rpc.voice.read", "rpc.voice.write"});
+        // TODO: Move from hardcoded ones to dynamic scopes later
+        OAuthClient.StartAuthorisationProcess(new []{ "rpc", "rpc.voice.read", "rpc.voice.write" });
     }
     
     public void DisconnectFromDiscord()
